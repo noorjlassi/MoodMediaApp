@@ -14,6 +14,10 @@ public class DeleteDevicesMessageValidator : AbstractValidator<DeleteDevicesMess
     {
         RuleFor(x => x.SerialNumbers)
         .NotNull().WithMessage("SerialNumbers cannot be null.")
-        .Must(d => d.Count != 0).WithMessage("SerialNumbers list cannot be empty.");
+        .DependentRules(() =>
+        {
+             RuleFor(x => x.SerialNumbers)
+                 .Must(d => d.Any()).WithMessage("SerialNumbers list cannot be empty.");
+        });
     }
 }

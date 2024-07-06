@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using MoodMediaApp.Messages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoodMediaApp.Validators;
 
@@ -25,10 +20,15 @@ public class NewCompanyMessageValidator : AbstractValidator<NewCompanyMessage>
 
         RuleFor(x => x.Devices)
             .NotNull().WithMessage("Devices cannot be null.")
-            .Must(d => d.Count != 0).WithMessage("Device list cannot be empty.")
-            .ForEach(d => {
-                d.NotNull().WithMessage("Device cannot be null.");
-                d.SetValidator(new DeviceMessageValidator());
+            .DependentRules(() =>
+            {
+                RuleFor(x => x.Devices)
+                    .Must(d => d.Any()).WithMessage("Device list cannot be empty.");
+
+                RuleForEach(x => x.Devices)
+                    .NotNull().WithMessage("Device cannot be null.")
+                    .SetValidator(new DeviceMessageValidator());
             });
+
     }
 }
